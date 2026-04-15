@@ -297,3 +297,27 @@ class PatientFeedback(models.Model):
 
     def __str__(self):
         return f"Feedback by {self.author.get_username()} on session {self.session_id}"
+
+
+class ClinicianFeedbackReply(models.Model):
+    """Clinician reply to a patient's session feedback."""
+    feedback = models.ForeignKey(
+        PatientFeedback,
+        on_delete=models.CASCADE,
+        related_name="replies",
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="feedback_replies",
+        limit_choices_to={"profile__role": UserProfile.Role.CLINICIAN},
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "dashboard_clinicianfeedbackreply"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Reply by {self.author.get_username()} to feedback {self.feedback_id}"
